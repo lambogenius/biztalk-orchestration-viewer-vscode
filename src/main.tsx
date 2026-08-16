@@ -1,3 +1,4 @@
+
 import React, { useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import {
@@ -483,3 +484,4 @@ function truncate(value: string, length: number) {
 }
 
 createRoot(document.getElementById('root')!).render(<App />);
+

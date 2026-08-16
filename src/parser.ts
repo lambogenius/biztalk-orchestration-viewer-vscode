@@ -1,3 +1,4 @@
+
 import type { ArtifactReference, OrchestrationEdge, OrchestrationShape, ParsedArtifact, ShapeKind } from './types';
 
 const shapeTerms: Array<[ShapeKind, RegExp]> = [
@@ -285,3 +286,4 @@ export function parseBizTalkXml(fileName: string, source: string): ParsedArtifac
     diagnostics,
   };
 }
+

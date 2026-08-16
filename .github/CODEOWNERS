@@ -1,0 +1,3 @@
+# Only members of this team should be organization owners.
+# Create the team in the lambogenius organization if it does not already exist.
+* @lambogenius/owners

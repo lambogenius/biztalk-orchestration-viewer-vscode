@@ -110,3 +110,4 @@ export function edgePath(edge: OrchestrationEdge, from?: DiagramNode, to?: Diagr
 
   return `M ${x1} ${y1} C ${x1} ${c1y}, ${x2} ${c2y}, ${x2} ${y2}`;
 }
+
