@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import {
   AlertTriangle,
@@ -88,6 +88,32 @@ function App() {
   const [manualPositions, setManualPositions] = useState<Record<string, { x: number; y: number }>>({});
   const fileInput = useRef<HTMLInputElement>(null);
   const dragState = useRef<{ id: string; startClientX: number; startClientY: number; startX: number; startY: number } | null>(null);
+
+  useEffect(() => {
+    const onMessage = (event: MessageEvent) => {
+      const message = event.data;
+      if (message?.type !== 'openArtifact' || typeof message.source !== 'string') return;
+
+      try {
+        const parsed = parseBizTalkXml(message.fileName || 'artifact.odx', message.source);
+        setArtifact(parsed);
+        setSelectedId(parsed.shapes[0]?.id || '');
+        setQuery('');
+        setKindFilter('all');
+        setManualPositions({});
+        setError('');
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Unable to parse this file.');
+      }
+    };
+
+    window.addEventListener('message', onMessage);
+    const acquireVsCodeApi = (globalThis as typeof globalThis & {
+      acquireVsCodeApi?: () => { postMessage: (message: unknown) => void };
+    }).acquireVsCodeApi;
+    acquireVsCodeApi?.().postMessage({ type: 'ready' });
+    return () => window.removeEventListener('message', onMessage);
+  }, []);
 
   const filteredShapes = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -483,4 +509,3 @@ function truncate(value: string, length: number) {
 }
 
 createRoot(document.getElementById('root')!).render(<App />);
-

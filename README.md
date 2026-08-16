@@ -39,8 +39,9 @@ Run the install script from PowerShell:
 
 It restores dependencies, builds a VSIX, removes an existing
 `lambogenius.biztalk-orchestration-viewer` installation, and installs the new
-package. Reload VS Code and run **BizTalk: Open Orchestration Viewer** from the
-Command Palette.
+package. Reload VS Code, then open an `.odx` file normally or select
+**BizTalk Orchestration Viewer** from **Open With...**. You can also run
+**BizTalk: Open Orchestration Viewer** from the Command Palette.
 
 ## Reinstall dependencies
 

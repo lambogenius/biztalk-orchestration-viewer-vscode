@@ -10,7 +10,10 @@
     "vscode": "^1.85.0"
   },
   "main": "extension.cjs",
-  "activationEvents": [],
+  "activationEvents": [
+    "onCommand:biztalkOrchestrationViewer.open",
+    "onCustomEditor:biztalkOrchestrationViewer.odxEditor"
+  ],
   "categories": [
     "Visualization"
   ],
@@ -19,6 +22,18 @@
       {
         "command": "biztalkOrchestrationViewer.open",
         "title": "BizTalk: Open Orchestration Viewer"
+      }
+    ],
+    "customEditors": [
+      {
+        "viewType": "biztalkOrchestrationViewer.odxEditor",
+        "displayName": "BizTalk Orchestration Viewer",
+        "selector": [
+          {
+            "filenamePattern": "*.odx"
+          }
+        ],
+        "priority": "default"
       }
     ]
   },
