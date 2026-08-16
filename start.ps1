@@ -3,15 +3,21 @@ param()
 
 $ErrorActionPreference = 'Stop'
 $viewerRoot = $PSScriptRoot
+$packageLockPath = Join-Path $viewerRoot 'package-lock.json'
 
 if (-not (Get-Command npm -ErrorAction SilentlyContinue)) {
     throw 'Node.js and npm are required to run the BizTalk Orchestration Viewer.'
 }
 
 if (-not (Test-Path -LiteralPath (Join-Path $viewerRoot 'node_modules'))) {
-    & npm install --prefix $viewerRoot
+    if (Test-Path -LiteralPath $packageLockPath -PathType Leaf) {
+        & npm ci --prefix $viewerRoot
+    } else {
+        & npm install --prefix $viewerRoot
+    }
+
     if ($LASTEXITCODE -ne 0) {
-        throw "npm install failed with exit code $LASTEXITCODE."
+        throw "Dependency install failed with exit code $LASTEXITCODE."
     }
 }
 
