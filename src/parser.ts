@@ -17,7 +17,7 @@ const shapeTerms: Array<[ShapeKind, RegExp]> = [
   ['artifact', /(schema|element|record|binding|service|porttype|operation)/i],
 ];
 
-const shapeNameAttrs = ['Name', 'name', 'Identifier', 'identifier', 'DisplayName', 'displayName', 'ShapeName', 'shapeName', 'Type', 'type'];
+const shapeNameAttrs = ['Name', 'name', 'Identifier', 'identifier', 'DisplayName', 'displayName', 'ShapeName', 'shapeName'];
 const referenceAttrMap: Array<[ArtifactReference['kind'], RegExp]> = [
   ['message', /(message|messagetype|source|target)/i],
   ['port', /(port|portname|sendport|receiveport)/i],
@@ -73,7 +73,7 @@ function pickName(node: Element, fallback: string): string {
 
   const directName = Array.from(node.children).find((child) => /name/i.test(localName(child)));
   const text = directName?.textContent?.trim();
-  return text || fallback;
+  return text || node.getAttribute('Type') || node.getAttribute('type') || fallback;
 }
 
 function detectKind(node: Element): ShapeKind {
@@ -192,7 +192,13 @@ function summarize(shapes: OrchestrationShape[]) {
 
 export function parseBizTalkXml(fileName: string, source: string): ParsedArtifact {
   const firstMarkup = source.search(/<[\w!?]/);
-  const xmlSource = firstMarkup > 0 ? source.slice(firstMarkup) : source;
+  let xmlSource = firstMarkup > 0 ? source.slice(firstMarkup) : source;
+
+  // An ODX source file is not an XML document in its entirety. BizTalk embeds
+  // its designer XML between C# preprocessor directives, followed by XLANG/s
+  // source. Give DOMParser only the embedded designer section.
+  const designerEnd = xmlSource.search(/^\s*#endif\b/m);
+  if (designerEnd >= 0) xmlSource = xmlSource.slice(0, designerEnd).trimEnd();
   const parser = new DOMParser();
   const document = parser.parseFromString(xmlSource, 'application/xml');
   const parseError = document.querySelector('parsererror');

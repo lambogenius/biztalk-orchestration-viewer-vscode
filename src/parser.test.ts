@@ -78,6 +78,28 @@ describe('parseBizTalkXml', () => {
     expect(result.namespace).toBe('urn:orders');
   });
 
+  it('extracts the designer XML embedded in a BizTalk ODX source file', () => {
+    const source = `#if __DESIGNER_DATA
+#error Do not define __DESIGNER_DATA.
+<?xml version="1.0" encoding="utf-8"?>
+<om:MetaModel xmlns:om="http://schemas.microsoft.com/BizTalk/2003/DesignerData">
+  <om:Element Type="Module"><om:Property Name="Name" Value="Orders" />
+    <om:Element Type="Receive"><om:Property Name="Name" Value="Receive order" /></om:Element>
+  </om:Element>
+</om:MetaModel>
+#endif // __DESIGNER_DATA
+module Orders { }
+`;
+
+    const result = parseBizTalkXml('Orders.odx', source);
+
+    expect(result.fileName).toBe('Orders.odx');
+    expect(result.shapes.map(({ kind, name }) => ({ kind, name }))).toContainEqual({
+      kind: 'receive',
+      name: 'Receive order',
+    });
+  });
+
   it('reports empty models and rejects malformed XML', () => {
     const empty = parseBizTalkXml('empty.xml', '<root><documentation>Notes</documentation></root>');
 

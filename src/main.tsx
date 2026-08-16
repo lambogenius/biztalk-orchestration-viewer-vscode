@@ -80,6 +80,7 @@ function decodeTextFile(buffer: ArrayBuffer): string {
 
 function App() {
   const [artifact, setArtifact] = useState<ParsedArtifact>(() => parseBizTalkXml('sample-orchestration.xml', sampleOrchestration));
+  const [displayFileName, setDisplayFileName] = useState(artifact.fileName);
   const [selectedId, setSelectedId] = useState<string>('shape-1');
   const [query, setQuery] = useState('');
   const [kindFilter, setKindFilter] = useState<ShapeKind | 'all'>('all');
@@ -94,8 +95,10 @@ function App() {
       const message = event.data;
       if (message?.type !== 'openArtifact' || typeof message.source !== 'string') return;
 
+      const fileName = message.fileName || 'artifact.odx';
+      setDisplayFileName(fileName);
       try {
-        const parsed = parseBizTalkXml(message.fileName || 'artifact.odx', message.source);
+        const parsed = parseBizTalkXml(fileName, message.source);
         setArtifact(parsed);
         setSelectedId(parsed.shapes[0]?.id || '');
         setQuery('');
@@ -150,6 +153,7 @@ function App() {
 
   async function loadFile(file: File) {
     setError('');
+    setDisplayFileName(file.name);
     try {
       const text = await readFile(file);
       const parsed = parseBizTalkXml(file.name, text);
@@ -220,7 +224,7 @@ function App() {
           </div>
           <div>
             <h1>BizTalk Orchestration Viewer</h1>
-            <p>{artifact.fileName}</p>
+            <p>{displayFileName}</p>
           </div>
         </div>
 
@@ -244,6 +248,7 @@ function App() {
             onClick={() => {
               const parsed = parseBizTalkXml('sample-orchestration.xml', sampleOrchestration);
               setArtifact(parsed);
+              setDisplayFileName(parsed.fileName);
               setSelectedId(parsed.shapes[0]?.id || '');
               setError('');
               setManualPositions({});

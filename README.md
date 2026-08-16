@@ -43,6 +43,11 @@ package. Reload VS Code, then open an `.odx` file normally or select
 **BizTalk Orchestration Viewer** from **Open With...**. You can also run
 **BizTalk: Open Orchestration Viewer** from the Command Palette.
 
+If `.odx` files still open as text, check `workbench.editorAssociations` in
+your VS Code settings. An explicit `"*.odx": "default"` entry overrides the
+extension; remove it or change its value to
+`"biztalkOrchestrationViewer.odxEditor"`.
+
 ## Reinstall dependencies
 
 Run the separate reinstall script from PowerShell:
