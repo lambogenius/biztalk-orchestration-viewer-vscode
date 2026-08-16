@@ -14,3 +14,4 @@ export const sampleOrchestration = `<?xml version="1.0" encoding="utf-8"?>
   <Receive Name="Receive backend response" Port="MaximoPort" Message="MaintenanceResponse" />
   <Send Name="Return orchestration response" Port="HttpVehicleUpdate" Message="VehicleInfoFromSourceResponse" />
 </Orchestration>`;
+
