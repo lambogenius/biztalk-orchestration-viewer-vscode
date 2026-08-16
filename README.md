@@ -13,6 +13,38 @@ npm run dev
 
 Open the URL printed by Vite, then drag a BizTalk artifact into the app.
 
+From PowerShell, you can also run `./start.ps1`; it installs dependencies on
+the first run and starts the local viewer. The application processes artifacts
+in the browser and does not upload them to a service.
+
+## Build and package
+
+Run the packaging script from PowerShell:
+
+```powershell
+./build-package.ps1
+```
+
+The script creates the production build and writes a versioned ZIP file to
+`artifacts/`. Pass `-OutputDirectory <path>` to use a different output
+directory.
+
+## Reinstall dependencies
+
+Run the separate reinstall script from PowerShell:
+
+```powershell
+./reinstall.ps1
+```
+
+It uses `npm ci` to remove the existing dependency installation and recreate
+it exactly from `package-lock.json`.
+
+## Test
+
+Run the unit tests once with `npm test`, or use `npm run test:watch` while
+developing.
+
 ## What It Does
 
 - Detects orchestration shapes from XML element names and BizTalk-style

@@ -483,3 +483,4 @@ function truncate(value: string, length: number) {
 }
 
 createRoot(document.getElementById('root')!).render(<App />);
+
