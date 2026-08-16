@@ -25,9 +25,25 @@ Run the packaging script from PowerShell:
 ./build-package.ps1
 ```
 
-The script performs a clean dependency reinstall with `npm ci`, creates the
-production build, and writes a versioned ZIP file to `artifacts/`. Pass
-`-OutputDirectory <path>` to use a different output directory.
+The script creates the production build and writes a versioned ZIP file to
+`artifacts/`. Pass `-OutputDirectory <path>` to use a different output
+directory.
+
+## Reinstall dependencies
+
+Run the separate reinstall script from PowerShell:
+
+```powershell
+./reinstall.ps1
+```
+
+It uses `npm ci` to remove the existing dependency installation and recreate
+it exactly from `package-lock.json`.
+
+## Test
+
+Run the unit tests once with `npm test`, or use `npm run test:watch` while
+developing.
 
 ## What It Does
 

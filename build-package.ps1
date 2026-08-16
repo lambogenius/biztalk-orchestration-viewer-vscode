@@ -30,12 +30,6 @@ $stagingDirectory = Join-Path $resolvedOutputDirectory "$packageName-$packageVer
 $archivePath = "$stagingDirectory.zip"
 $distDirectory = Join-Path $viewerRoot 'dist'
 
-Write-Host 'Reinstalling dependencies from package-lock.json...'
-& npm ci --prefix $viewerRoot
-if ($LASTEXITCODE -ne 0) {
-    throw "npm ci failed with exit code $LASTEXITCODE."
-}
-
 Write-Host 'Building production files...'
 & npm run build --prefix $viewerRoot
 if ($LASTEXITCODE -ne 0) {

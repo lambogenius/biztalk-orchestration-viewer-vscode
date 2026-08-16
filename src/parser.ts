@@ -3,7 +3,7 @@ import type { ArtifactReference, OrchestrationEdge, OrchestrationShape, ParsedAr
 
 const shapeTerms: Array<[ShapeKind, RegExp]> = [
   ['receive', /(receive|receiveshape)/i],
-  ['send', /(^send$|sendshape|sendport|transmit)/i],
+  ['send', /(\bsend\b|sendshape|sendport|transmit)/i],
   ['construct', /(construct|constructmessage|messageassignment)/i],
   ['transform', /(transform|map|mapping|btm)/i],
   ['decision', /(decide|decision|branch|rule|condition|if)/i],
@@ -286,4 +286,3 @@ export function parseBizTalkXml(fileName: string, source: string): ParsedArtifac
     diagnostics,
   };
 }
-
