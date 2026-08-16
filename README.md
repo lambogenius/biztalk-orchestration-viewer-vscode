@@ -29,6 +29,19 @@ The script creates the production build and writes a versioned ZIP file to
 `artifacts/`. Pass `-OutputDirectory <path>` to use a different output
 directory.
 
+## Install the VS Code extension
+
+Run the install script from PowerShell:
+
+```powershell
+./install-extension.ps1
+```
+
+It restores dependencies, builds a VSIX, removes an existing
+`lambogenius.biztalk-orchestration-viewer` installation, and installs the new
+package. Reload VS Code and run **BizTalk: Open Orchestration Viewer** from the
+Command Palette.
+
 ## Reinstall dependencies
 
 Run the separate reinstall script from PowerShell:
