@@ -1,5 +1,7 @@
 # BizTalk Orchestration Viewer
 
+[![Source on GitHub](https://img.shields.io/badge/source-GitHub-181717?logo=github)](https://github.com/lambogenius/biztalk-orchestration-viewer-vscode)
+
 A local-first viewer for BizTalk orchestration artifacts. It reads `.odx`, `.btm`,
 `.xsd`, binding XML, or other BizTalk-adjacent XML files and renders an
 interactive orchestration diagram with shape details and migration notes.
@@ -29,7 +31,9 @@ The script creates the production build and writes a versioned ZIP file to
 `artifacts/`. Pass `-OutputDirectory <path>` to use a different output
 directory.
 
-## Install the VS Code extension
+## Install locally
+
+Source code: [GitHub repository](https://github.com/lambogenius/biztalk-orchestration-viewer-vscode)
 
 Run the install script from PowerShell:
 

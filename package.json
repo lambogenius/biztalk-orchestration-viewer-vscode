@@ -4,7 +4,14 @@
   "description": "View BizTalk orchestration artifacts as interactive diagrams in VS Code.",
   "version": "0.1.0",
   "publisher": "lambogenius",
-  "private": true,
+  "icon": "media/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lambogenius/biztalk-orchestration-viewer-vscode.git"
+  },
+  "homepage": "https://github.com/lambogenius/biztalk-orchestration-viewer-vscode#readme",
+  "bugs": { "url": "https://github.com/lambogenius/biztalk-orchestration-viewer-vscode/issues" },
+  "license": "MIT",
   "type": "module",
   "engines": {
     "vscode": "^1.85.0"
@@ -39,7 +46,9 @@
   },
   "files": [
     "dist/**",
+    "media/**",
     "extension.cjs",
+    "LICENSE",
     "README.md"
   ],
   "scripts": {
