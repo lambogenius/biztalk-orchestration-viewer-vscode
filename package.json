@@ -2,7 +2,7 @@
   "name": "biztalk-orchestration-viewer",
   "displayName": "BizTalk Orchestration Viewer",
   "description": "View BizTalk orchestration artifacts as interactive diagrams in VS Code.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "publisher": "lambogenius",
   "icon": "media/icon.png",
   "repository": {
@@ -55,7 +55,7 @@
     "dev": "vite --host 127.0.0.1",
     "build": "tsc -b && vite build",
     "preview": "vite preview --host 127.0.0.1",
-    "test": "vitest run --pool=threads",
+    "test": "vitest run --pool=threads --dir src && node --test test/extension.test.cjs",
     "test:watch": "vitest --pool=threads",
     "package:vsix": "npm run build && vsce package --out artifacts/biztalk-orchestration-viewer.vsix"
   },

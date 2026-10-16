@@ -40,6 +40,17 @@ const visibleKinds: ShapeKind[] = [
   'unknown',
 ];
 
+// Inside VS Code the webview can't download files, and files dragged from VS Code's Explorer arrive as URIs rather
+// than File objects, so saving, picking and those drops go through the extension (extension.cjs).
+const vscodeApi = (globalThis as typeof globalThis & {
+  acquireVsCodeApi?: () => { postMessage: (message: unknown) => void };
+}).acquireVsCodeApi?.();
+
+function droppedUri(dataTransfer: DataTransfer): string | undefined {
+  const list = dataTransfer.getData('application/vnd.code.uri-list') || dataTransfer.getData('text/uri-list');
+  return list.split(/\r?\n/).map((line) => line.trim()).find((line) => line && !line.startsWith('#'));
+}
+
 function readFile(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -93,6 +104,10 @@ function App() {
   useEffect(() => {
     const onMessage = (event: MessageEvent) => {
       const message = event.data;
+      if (message?.type === 'error' && typeof message.message === 'string') {
+        setError(message.message);
+        return;
+      }
       if (message?.type !== 'openArtifact' || typeof message.source !== 'string') return;
 
       const fileName = message.fileName || 'artifact.odx';
@@ -111,10 +126,7 @@ function App() {
     };
 
     window.addEventListener('message', onMessage);
-    const acquireVsCodeApi = (globalThis as typeof globalThis & {
-      acquireVsCodeApi?: () => { postMessage: (message: unknown) => void };
-    }).acquireVsCodeApi;
-    acquireVsCodeApi?.().postMessage({ type: 'ready' });
+    vscodeApi?.postMessage({ type: 'ready' });
     return () => window.removeEventListener('message', onMessage);
   }, []);
 
@@ -170,15 +182,31 @@ function App() {
   function onDrop(event: React.DragEvent<HTMLElement>) {
     event.preventDefault();
     const file = event.dataTransfer.files[0];
-    if (file) void loadFile(file);
+    if (file) {
+      void loadFile(file);
+      return;
+    }
+    const uri = droppedUri(event.dataTransfer);
+    if (uri && vscodeApi) vscodeApi.postMessage({ type: 'openUri', uri });
+  }
+
+  function openArtifact() {
+    if (vscodeApi) vscodeApi.postMessage({ type: 'pickFile' });
+    else fileInput.current?.click();
   }
 
   function exportModel() {
-    const blob = new Blob([JSON.stringify(artifact, null, 2)], { type: 'application/json' });
+    const fileName = `${artifact.fileName.replace(/\.[^.]+$/, '')}.viewer-model.json`;
+    const content = JSON.stringify(artifact, null, 2);
+    if (vscodeApi) {
+      vscodeApi.postMessage({ type: 'saveModel', fileName, content });
+      return;
+    }
+    const blob = new Blob([content], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `${artifact.fileName.replace(/\.[^.]+$/, '')}.viewer-model.json`;
+    link.download = fileName;
     link.click();
     URL.revokeObjectURL(url);
   }
@@ -238,7 +266,7 @@ function App() {
               if (file) void loadFile(file);
             }}
           />
-          <button type="button" className="primary-action" onClick={() => fileInput.current?.click()}>
+          <button type="button" className="primary-action" onClick={openArtifact}>
             <Upload size={18} />
             Open Artifact
           </button>

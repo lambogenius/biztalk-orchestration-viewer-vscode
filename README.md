@@ -78,6 +78,7 @@ developing.
 - Shows referenced ports, messages, maps, schemas, bindings, and attributes
   when available.
 - Provides a compact migration hint for each recognized shape.
+- In VS Code, **Open Artifact** uses VS Code's file dialog, files dragged from the Explorer open in the viewer (hold Shift while dropping, as VS Code asks), and **Export parsed model** saves the JSON through a Save dialog.
 
 This is intentionally static and local. It does not need BizTalk Server or a
 tracking database.
