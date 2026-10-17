@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import {
   AlertTriangle,
@@ -40,6 +40,17 @@ const visibleKinds: ShapeKind[] = [
   'unknown',
 ];
 
+// Inside VS Code the webview can't download files, and files dragged from VS Code's Explorer arrive as URIs rather
+// than File objects, so saving, picking and those drops go through the extension (extension.cjs).
+const vscodeApi = (globalThis as typeof globalThis & {
+  acquireVsCodeApi?: () => { postMessage: (message: unknown) => void };
+}).acquireVsCodeApi?.();
+
+function droppedUri(dataTransfer: DataTransfer): string | undefined {
+  const list = dataTransfer.getData('application/vnd.code.uri-list') || dataTransfer.getData('text/uri-list');
+  return list.split(/\r?\n/).map((line) => line.trim()).find((line) => line && !line.startsWith('#'));
+}
+
 function readFile(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -80,6 +91,7 @@ function decodeTextFile(buffer: ArrayBuffer): string {
 
 function App() {
   const [artifact, setArtifact] = useState<ParsedArtifact>(() => parseBizTalkXml('sample-orchestration.xml', sampleOrchestration));
+  const [displayFileName, setDisplayFileName] = useState(artifact.fileName);
   const [selectedId, setSelectedId] = useState<string>('shape-1');
   const [query, setQuery] = useState('');
   const [kindFilter, setKindFilter] = useState<ShapeKind | 'all'>('all');
@@ -88,6 +100,35 @@ function App() {
   const [manualPositions, setManualPositions] = useState<Record<string, { x: number; y: number }>>({});
   const fileInput = useRef<HTMLInputElement>(null);
   const dragState = useRef<{ id: string; startClientX: number; startClientY: number; startX: number; startY: number } | null>(null);
+
+  useEffect(() => {
+    const onMessage = (event: MessageEvent) => {
+      const message = event.data;
+      if (message?.type === 'error' && typeof message.message === 'string') {
+        setError(message.message);
+        return;
+      }
+      if (message?.type !== 'openArtifact' || typeof message.source !== 'string') return;
+
+      const fileName = message.fileName || 'artifact.odx';
+      setDisplayFileName(fileName);
+      try {
+        const parsed = parseBizTalkXml(fileName, message.source);
+        setArtifact(parsed);
+        setSelectedId(parsed.shapes[0]?.id || '');
+        setQuery('');
+        setKindFilter('all');
+        setManualPositions({});
+        setError('');
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Unable to parse this file.');
+      }
+    };
+
+    window.addEventListener('message', onMessage);
+    vscodeApi?.postMessage({ type: 'ready' });
+    return () => window.removeEventListener('message', onMessage);
+  }, []);
 
   const filteredShapes = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -124,6 +165,7 @@ function App() {
 
   async function loadFile(file: File) {
     setError('');
+    setDisplayFileName(file.name);
     try {
       const text = await readFile(file);
       const parsed = parseBizTalkXml(file.name, text);
@@ -140,15 +182,31 @@ function App() {
   function onDrop(event: React.DragEvent<HTMLElement>) {
     event.preventDefault();
     const file = event.dataTransfer.files[0];
-    if (file) void loadFile(file);
+    if (file) {
+      void loadFile(file);
+      return;
+    }
+    const uri = droppedUri(event.dataTransfer);
+    if (uri && vscodeApi) vscodeApi.postMessage({ type: 'openUri', uri });
+  }
+
+  function openArtifact() {
+    if (vscodeApi) vscodeApi.postMessage({ type: 'pickFile' });
+    else fileInput.current?.click();
   }
 
   function exportModel() {
-    const blob = new Blob([JSON.stringify(artifact, null, 2)], { type: 'application/json' });
+    const fileName = `${artifact.fileName.replace(/\.[^.]+$/, '')}.viewer-model.json`;
+    const content = JSON.stringify(artifact, null, 2);
+    if (vscodeApi) {
+      vscodeApi.postMessage({ type: 'saveModel', fileName, content });
+      return;
+    }
+    const blob = new Blob([content], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `${artifact.fileName.replace(/\.[^.]+$/, '')}.viewer-model.json`;
+    link.download = fileName;
     link.click();
     URL.revokeObjectURL(url);
   }
@@ -194,7 +252,7 @@ function App() {
           </div>
           <div>
             <h1>BizTalk Orchestration Viewer</h1>
-            <p>{artifact.fileName}</p>
+            <p>{displayFileName}</p>
           </div>
         </div>
 
@@ -208,7 +266,7 @@ function App() {
               if (file) void loadFile(file);
             }}
           />
-          <button type="button" className="primary-action" onClick={() => fileInput.current?.click()}>
+          <button type="button" className="primary-action" onClick={openArtifact}>
             <Upload size={18} />
             Open Artifact
           </button>
@@ -218,6 +276,7 @@ function App() {
             onClick={() => {
               const parsed = parseBizTalkXml('sample-orchestration.xml', sampleOrchestration);
               setArtifact(parsed);
+              setDisplayFileName(parsed.fileName);
               setSelectedId(parsed.shapes[0]?.id || '');
               setError('');
               setManualPositions({});
@@ -483,4 +542,3 @@ function truncate(value: string, length: number) {
 }
 
 createRoot(document.getElementById('root')!).render(<App />);
-

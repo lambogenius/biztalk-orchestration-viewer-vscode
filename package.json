@@ -1,14 +1,63 @@
 {
   "name": "biztalk-orchestration-viewer",
-  "version": "0.1.0",
-  "private": true,
+  "displayName": "BizTalk Orchestration Viewer",
+  "description": "View BizTalk orchestration artifacts as interactive diagrams in VS Code.",
+  "version": "0.2.0",
+  "publisher": "lambogenius",
+  "icon": "media/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lambogenius/biztalk-orchestration-viewer-vscode.git"
+  },
+  "homepage": "https://github.com/lambogenius/biztalk-orchestration-viewer-vscode#readme",
+  "bugs": { "url": "https://github.com/lambogenius/biztalk-orchestration-viewer-vscode/issues" },
+  "license": "MIT",
   "type": "module",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "main": "extension.cjs",
+  "activationEvents": [
+    "onCommand:biztalkOrchestrationViewer.open",
+    "onCustomEditor:biztalkOrchestrationViewer.odxEditor"
+  ],
+  "categories": [
+    "Visualization"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "biztalkOrchestrationViewer.open",
+        "title": "BizTalk: Open Orchestration Viewer"
+      }
+    ],
+    "customEditors": [
+      {
+        "viewType": "biztalkOrchestrationViewer.odxEditor",
+        "displayName": "BizTalk Orchestration Viewer",
+        "selector": [
+          {
+            "filenamePattern": "*.odx"
+          }
+        ],
+        "priority": "default"
+      }
+    ]
+  },
+  "files": [
+    "dist/**",
+    "media/**",
+    "extension.cjs",
+    "LICENSE",
+    "README.md"
+  ],
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "build": "tsc -b && vite build",
     "preview": "vite preview --host 127.0.0.1",
-    "test": "vitest run --pool=threads",
-    "test:watch": "vitest --pool=threads"
+    "test": "vitest run --pool=threads --dir src && node --test test/extension.test.cjs",
+    "test:watch": "vitest --pool=threads",
+    "package:vsix": "npm run build && vsce package --out artifacts/biztalk-orchestration-viewer.vsix"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",
@@ -19,6 +68,7 @@
     "@types/react": "^18.3.31",
     "@types/react-dom": "^18.3.7",
     "@vitejs/plugin-react": "^5.2.0",
+    "@vscode/vsce": "^3.6.0",
     "jsdom": "^30.0.1",
     "typescript": "^5.9.3",
     "vite": "^6.4.3",

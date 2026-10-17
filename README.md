@@ -1,5 +1,7 @@
 # BizTalk Orchestration Viewer
 
+[![Source on GitHub](https://img.shields.io/badge/source-GitHub-181717?logo=github)](https://github.com/lambogenius/biztalk-orchestration-viewer-vscode)
+
 A local-first viewer for BizTalk orchestration artifacts. It reads `.odx`, `.btm`,
 `.xsd`, binding XML, or other BizTalk-adjacent XML files and renders an
 interactive orchestration diagram with shape details and migration notes.
@@ -29,6 +31,27 @@ The script creates the production build and writes a versioned ZIP file to
 `artifacts/`. Pass `-OutputDirectory <path>` to use a different output
 directory.
 
+## Install locally
+
+Source code: [GitHub repository](https://github.com/lambogenius/biztalk-orchestration-viewer-vscode)
+
+Run the install script from PowerShell:
+
+```powershell
+./install-extension.ps1
+```
+
+It restores dependencies, builds a VSIX, removes an existing
+`lambogenius.biztalk-orchestration-viewer` installation, and installs the new
+package. Reload VS Code, then open an `.odx` file normally or select
+**BizTalk Orchestration Viewer** from **Open With...**. You can also run
+**BizTalk: Open Orchestration Viewer** from the Command Palette.
+
+If `.odx` files still open as text, check `workbench.editorAssociations` in
+your VS Code settings. An explicit `"*.odx": "default"` entry overrides the
+extension; remove it or change its value to
+`"biztalkOrchestrationViewer.odxEditor"`.
+
 ## Reinstall dependencies
 
 Run the separate reinstall script from PowerShell:
@@ -55,6 +78,7 @@ developing.
 - Shows referenced ports, messages, maps, schemas, bindings, and attributes
   when available.
 - Provides a compact migration hint for each recognized shape.
+- In VS Code, **Open Artifact** uses VS Code's file dialog, files dragged from the Explorer open in the viewer (hold Shift while dropping, as VS Code asks), and **Export parsed model** saves the JSON through a Save dialog.
 
 This is intentionally static and local. It does not need BizTalk Server or a
 tracking database.
